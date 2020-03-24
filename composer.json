@@ -1,0 +1,20 @@
+{
+    "name": "setrest/storage",
+    "type": "library",
+    "require": {
+        "nesbot/carbon": "^2.0@dev"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Aleksey Shorokhov",
+            "email": "al.ho99@yandex.ru"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Setrest\\Storage\\": "src/"
+        }
+    }
+}
