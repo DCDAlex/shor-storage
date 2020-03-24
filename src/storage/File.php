@@ -116,4 +116,19 @@ class File
             $this->fileType = substr($file->mime, strpos($file->mime, "/") + 1);
         }
     }
+
+    /**
+     * Получение пути только что созданного иозображения
+     * относительно директории указанной в конфиге файловой системы
+     *
+     * @return string
+     */
+    public function path(): ?string 
+    {
+        if($this->isUploaded) {
+            return $this->directory . $this->name . "." . $this->fileType;
+        }
+
+        return null;
+    }
 }

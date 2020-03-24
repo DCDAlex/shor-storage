@@ -67,16 +67,4 @@ class Image extends File
 
         return $this;
     }
-
-    /**
-     * Получение пути только что созданного иозображения
-     * относительно директории указанной в конфиге файловой системы
-     *
-     * @return string
-     */
-    public function path(): string 
-    {
-        return $this->directory . $this->name . "." . $this->fileType;
-    }
-
 }
