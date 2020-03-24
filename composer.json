@@ -1,10 +1,7 @@
 {
     "name": "setrest/storage",
+    "description": "Storage file lib",
     "type": "library",
-    "require": {
-        "nesbot/carbon": "^2.0@dev",
-        "intervention/image": "^2.5"
-    },
     "license": "MIT",
     "authors": [
         {
@@ -12,10 +9,14 @@
             "email": "al.ho99@yandex.ru"
         }
     ],
+    "require": {
+        "nesbot/carbon": "^2.0@dev",
+        "intervention/image": "^2.5"
+    },
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
-            "Setrest\\Storage\\": "src/"
+            "Setrest\\Storage\\": "src/storage"
         }
     }
 }
