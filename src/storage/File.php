@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Services\Storage;
+namespace Setrest\Storage;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;

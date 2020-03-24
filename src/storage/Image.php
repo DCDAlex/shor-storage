@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Services\Storage;
+namespace Setrest\Storage;
 
 use Intervention\Image\Facades\Image as InterventionImage;
 
