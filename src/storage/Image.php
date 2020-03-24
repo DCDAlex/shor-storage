@@ -10,7 +10,7 @@ use Intervention\Image\Facades\Image as InterventionImage;
  *  ❕  Использует intervation/image для редактирования исходного файла
  *
  */
-class Image extends Core
+class Image extends File
 {
     /**
      * Устанваливает директорию загрузки файлов
@@ -31,19 +31,24 @@ class Image extends Core
      *
      * @return string|null
      */
-    public function uploadImage(): ?string
+    public function uploadImage(): object
     {
         $this->file->encode($this->fileType);
         $this->upload();
 
-        return $this->directory . $this->name . "." . $this->fileType;
+        return $this;
     }
 
-    //todo
-    public function updateImage()
+    /**
+     * Процесс удаления старого файла и загрзуи нового
+     *
+     * @param string $path Путь до файла который будет удален
+     * @return void
+     */
+    public function updateImage(string $path): object
     {
-
-        return;
+        $this->delete($path);
+        return $this->uploadImage();
     }
 
     /**
@@ -61,6 +66,17 @@ class Image extends Core
         });
 
         return $this;
+    }
+
+    /**
+     * Получение пути только что созданного иозображения
+     * относительно директории указанной в конфиге файловой системы
+     *
+     * @return string
+     */
+    public function path(): string 
+    {
+        return $this->directory . $this->name . "." . $this->fileType;
     }
 
 }

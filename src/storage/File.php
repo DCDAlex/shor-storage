@@ -2,13 +2,13 @@
 
 namespace App\Http\Services\Storage;
 
-use Illuminate\Support\Carbon;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 /**
  * 🔧 Абстрактный класс, реализует основную логику работы с файлами
  */
-abstract class Core
+class File
 {
     public $isUploaded;
 
@@ -28,30 +28,38 @@ abstract class Core
     public $fileType;
 
     /**
+     * Название laravel диска для загрузки
+     */
+    public $storageDisc;
+
+    /**
      * Исходный файл
      */
     public $file;
 
     public function __construct($file = null)
     {
-        $this->file = $file;
         $this->isUploaded = false;
-
-        if ($this->file) {
-            $this->fileType = substr($file->mime, strpos($file->mime, "/") + 1);
-        }
+        $this->storageDisc = 'customPublic';
+        
+        $this->setInformation($file);
     }
 
     /**
      * Сохраняет файл на сервере
      *
-     * @return self
+     * @param [type] $file
+     * @return object
      */
-    public function upload(): self
+    public function upload($file = null): object
     {
+        if ($file) {
+            $this->setInformation($file);
+        }
+
         if ($this->file != null) {
             $path = $this->directory . $this->hashing($this->file) . '.' . $this->fileType;
-            $this->isUploaded = Storage::disk('customPublic')->put($path, $this->file);
+            $this->isUploaded = Storage::disk($this->storageDisc)->put($path, $this->file);
         }
 
         return $this;
@@ -76,7 +84,7 @@ abstract class Core
      * @param string $postfix
      * @return object
      */
-    public function direcotryPostfix(string $postfix): object
+    public function directoryPostfix(string $postfix): object
     {
         $this->directory .= $postfix;
         return $this;
@@ -91,6 +99,21 @@ abstract class Core
      */
     public function delete(string $path = null): bool
     {
-        return Storage::disk('customPublic')->delete($path);
+        return Storage::disk($this->storageDisc)->delete($path);
+    }
+
+    /**
+     * Сбор информации о файле
+     *
+     * @param [type] $file
+     * @return void
+     */
+    private function setInformation($file): void
+    {
+        $this->file = $file;
+        
+        if ($this->file) {
+            $this->fileType = substr($file->mime, strpos($file->mime, "/") + 1);
+        }
     }
 }
