@@ -2,7 +2,8 @@
     "name": "setrest/storage",
     "type": "library",
     "require": {
-        "nesbot/carbon": "^2.0@dev"
+        "nesbot/carbon": "^2.0@dev",
+        "intervention/image": "^2.5"
     },
     "license": "MIT",
     "authors": [
