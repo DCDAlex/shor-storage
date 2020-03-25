@@ -31,8 +31,13 @@ class Image extends File
      *
      * @return string|null
      */
-    public function uploadImage(): object
+    public function uploadImage($image = null): object
     {
+
+        if ($image) {
+            $this->__construct($image);
+        }
+        
         $this->file->encode($this->fileType);
         $this->upload();
 
