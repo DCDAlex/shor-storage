@@ -41,7 +41,7 @@ class File
     {
         $this->isUploaded = false;
         $this->storageDisc = 'customPublic';
-        $this->directory .= '/';
+        $this->directory = $this->directory . '/';
 
         $this->setInformation($file);
     }
