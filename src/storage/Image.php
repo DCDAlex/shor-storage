@@ -21,9 +21,8 @@ class Image extends File
     {
         if ($file) {
             $file = InterventionImage::make($file);
+            parent::__construct($file);
         }
-
-        parent::__construct($file);
     }
 
     /**
@@ -37,7 +36,7 @@ class Image extends File
         if ($image) {
             $this->__construct($image);
         }
-        
+
         $this->file->encode($this->fileType);
         $this->upload();
 
@@ -50,10 +49,10 @@ class Image extends File
      * @param string $path Путь до файла который будет удален
      * @return void
      */
-    public function updateImage(string $path): object
+    public function updateImage(string $path, $image = null): object
     {
         $this->delete($path);
-        return $this->uploadImage();
+        return $this->uploadImage($image);
     }
 
     /**
