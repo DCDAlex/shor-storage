@@ -41,6 +41,7 @@ class File
     {
         $this->isUploaded = false;
         $this->storageDisc = 'customPublic';
+        $this->directory .= '/';
 
         $this->setInformation($file);
     }
@@ -58,7 +59,7 @@ class File
         }
 
         if ($this->file != null) {
-            $path = $this->directory . '/' . $this->hashing($this->file) . '.' . $this->fileType;
+            $path = $this->directory . $this->hashing($this->file) . '.' . $this->fileType;
             $this->isUploaded = Storage::disk($this->storageDisc)->put($path, $this->file);
         }
 
