@@ -41,7 +41,7 @@ class File
     {
         $this->isUploaded = false;
         $this->storageDisc = 'customPublic';
-        
+
         $this->setInformation($file);
     }
 
@@ -58,7 +58,7 @@ class File
         }
 
         if ($this->file != null) {
-            $path = $this->directory . $this->hashing($this->file) . '.' . $this->fileType;
+            $path = $this->directory . '/' . $this->hashing($this->file) . '.' . $this->fileType;
             $this->isUploaded = Storage::disk($this->storageDisc)->put($path, $this->file);
         }
 
@@ -68,8 +68,8 @@ class File
     /**
      * Генерирует хэш для названия файла
      *
-     * @param file $file файл 
-     * 
+     * @param file $file файл
+     *
      * @return string
      */
     protected function hashing($file): string
@@ -79,7 +79,7 @@ class File
     }
 
     /**
-     * Метод дял добавления вложенных директорий 
+     * Метод дял добавления вложенных директорий
      *
      * @param string $postfix
      * @return object
@@ -94,7 +94,7 @@ class File
      * Удаляет файл с сервера
      *
      * @param string $path относительный путь до файла
-     * 
+     *
      * @return boolean
      */
     public function delete(string $path = null): bool
@@ -111,7 +111,7 @@ class File
     private function setInformation($file): void
     {
         $this->file = $file;
-        
+
         if ($this->file) {
             $this->fileType = substr($file->mime, strpos($file->mime, "/") + 1);
         }
@@ -123,9 +123,9 @@ class File
      *
      * @return string
      */
-    public function path(): ?string 
+    public function path(): ?string
     {
-        if($this->isUploaded) {
+        if ($this->isUploaded) {
             return $this->directory . $this->name . "." . $this->fileType;
         }
 

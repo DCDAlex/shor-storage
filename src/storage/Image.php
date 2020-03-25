@@ -15,7 +15,7 @@ class Image extends File
     /**
      * Устанваливает директорию загрузки файлов
      */
-    public $directory = /** upload/ **/"images/";
+    public $directory = /** upload/ **/ "images"/** / */;
 
     public function __construct($file = null)
     {
