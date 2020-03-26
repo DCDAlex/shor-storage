@@ -41,7 +41,7 @@ class File
     {
         $this->isUploaded = false;
         $this->storageDisc = 'customPublic';
-        $this->directory = $this->directory ?? $this->directory . '/';
+        $this->directory = $this->directory . '/';
 
         $this->setInformation($file);
     }
@@ -59,24 +59,11 @@ class File
         }
 
         if ($this->file != null) {
-            $path = $this->directory . $this->hashing($this->file) . '.' . $this->fileType;
+            $path = $this->directoryChecking($this->directory) . $this->hashing($this->file) . '.' . $this->fileType;
             $this->isUploaded = Storage::disk($this->storageDisc)->put($path, $this->file);
         }
 
         return $this;
-    }
-
-    /**
-     * Генерирует хэш для названия файла
-     *
-     * @param file $file файл
-     *
-     * @return string
-     */
-    protected function hashing($file): string
-    {
-        $now = Carbon::now()->toDateTimeString();
-        return $this->name = md5($file->__toString() . rand() . $now);
     }
 
     /**
@@ -104,6 +91,35 @@ class File
     }
 
     /**
+     * Получение пути только что созданного иозображения
+     * относительно директории указанной в конфиге файловой системы
+     *
+     * @return string
+     */
+    public function path(): ?string
+    {
+        if ($this->isUploaded) {
+            return $this->directory . $this->name . "." . $this->fileType;
+        }
+
+        return null;
+    }
+    
+    /**
+     * Генерирует хэш для названия файла
+     *
+     * @param file $file файл
+     *
+     * @return string
+     */
+    protected function hashing($file): string
+    {
+        $now = Carbon::now()->toDateTimeString();
+        return $this->name = md5($file->__toString() . rand() . $now);
+    }
+
+    
+    /**
      * Сбор информации о файле
      *
      * @param [type] $file
@@ -118,18 +134,13 @@ class File
         }
     }
 
-    /**
-     * Получение пути только что созданного иозображения
-     * относительно директории указанной в конфиге файловой системы
-     *
-     * @return string
-     */
-    public function path(): ?string
+    private function directoryChecking(string $directory): string
     {
-        if ($this->isUploaded) {
-            return $this->directory . $this->name . "." . $this->fileType;
+        $directory = preg_replace('/(\/){2,}/', '$1', $directory);
+        if (substr($directory, -1) != '/') {
+            $directory .= '/';
         }
 
-        return null;
+        return $this->$directory = $directory;
     }
 }
