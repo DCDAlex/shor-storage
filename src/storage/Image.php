@@ -15,15 +15,14 @@ class Image extends File
     /**
      * Устанваливает директорию загрузки файлов
      */
-    public $directory = /** upload/ **/"images/";
+    public $directory = /** upload/ **/"images"/** / */;
 
     public function __construct($file = null)
     {
         if ($file) {
             $file = InterventionImage::make($file);
+            parent::__construct($file);
         }
-
-        parent::__construct($file);
     }
 
     /**
@@ -31,8 +30,13 @@ class Image extends File
      *
      * @return string|null
      */
-    public function uploadImage(): object
+    public function uploadImage($image = null): object
     {
+
+        if ($image) {
+            $this->__construct($image);
+        }
+
         $this->file->encode($this->fileType);
         $this->upload();
 
@@ -45,10 +49,10 @@ class Image extends File
      * @param string $path Путь до файла который будет удален
      * @return void
      */
-    public function updateImage(string $path): object
+    public function updateImage(string $path, $image = null): object
     {
         $this->delete($path);
-        return $this->uploadImage();
+        return $this->uploadImage($image);
     }
 
     /**
@@ -65,6 +69,18 @@ class Image extends File
             $constraint->upsize();
         });
 
+        return $this;
+    }
+
+    /**
+     * Объявление файла 
+     *
+     * @param [type] $file
+     * @return object
+     */
+    public function init($image): object
+    {
+        $this->__construct($image);
         return $this;
     }
 }
