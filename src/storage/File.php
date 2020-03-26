@@ -141,6 +141,6 @@ class File
             $directory .= '/';
         }
 
-        return $this->$directory = $directory;
+        return $this->directory = $directory;
     }
 }
