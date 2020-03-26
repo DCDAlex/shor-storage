@@ -15,7 +15,7 @@ class Image extends File
     /**
      * Устанваливает директорию загрузки файлов
      */
-    public $directory = /** upload/ **/ "images"/** / */;
+    public $directory = /** upload/ **/"images"/** / */;
 
     public function __construct($file = null)
     {
@@ -69,6 +69,18 @@ class Image extends File
             $constraint->upsize();
         });
 
+        return $this;
+    }
+
+    /**
+     * Объявление файла 
+     *
+     * @param [type] $file
+     * @return object
+     */
+    public function init($image): object
+    {
+        $this->__construct($image);
         return $this;
     }
 }
