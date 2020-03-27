@@ -3,6 +3,7 @@
 namespace Setrest\Storage;
 
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -130,7 +131,11 @@ class File
         $this->file = $file;
 
         if ($this->file) {
-            $this->fileType = substr($file->mime, strpos($file->mime, "/") + 1);
+            try {
+                $this->fileType = substr($file->mime, strpos($file->mime, "/") + 1);
+            } catch (Exception $e) {
+                $this->fileType = substr($file->getClientOriginalName(), strpos($file->getClientOriginalName(), '.') + 1);
+            }
         }
     }
 
