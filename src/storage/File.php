@@ -42,7 +42,6 @@ class File
     {
         $this->isUploaded = false;
         $this->storageDisc = 'customPublic';
-        $this->directory = $this->directory;
 
         $this->setInformation($file);
     }
@@ -75,6 +74,10 @@ class File
      */
     public function directoryPostfix(string $postfix): object
     {
+        if (substr($postfix, 0) != '/') {
+            $postfix = '/' . $postfix;
+        }
+        
         $this->directory .= $postfix;
         return $this;
     }
@@ -105,7 +108,7 @@ class File
 
         return null;
     }
-    
+
     /**
      * Генерирует хэш для названия файла
      *
@@ -119,7 +122,6 @@ class File
         return $this->name = md5($file->__toString() . rand() . $now);
     }
 
-    
     /**
      * Сбор информации о файле
      *
