@@ -128,7 +128,7 @@ class File
      * @param [type] $file
      * @return void
      */
-    private function setInformation($file): void
+    protected function setInformation($file): void
     {
         $this->file = $file;
 
@@ -141,7 +141,7 @@ class File
         }
     }
 
-    private function directoryChecking(string $directory): string
+    protected function directoryChecking(string $directory): string
     {
         $directory = preg_replace('/(\/){2,}/', '$1', $directory);
         if (substr($directory, -1) != '/') {
