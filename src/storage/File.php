@@ -59,7 +59,8 @@ class File
         }
 
         if ($this->file != null) {
-            $this->uploadPath = Storage::disk($this->storageDisc)->put($this->directoryChecking($this->directory), $this->file);
+            $uploadPath = Storage::disk($this->storageDisc)->put($this->directoryChecking($this->directory), $this->file);
+            $this->uploadPath = preg_replace('/(\/){2,}/', '$1', $uploadPath);
         }
 
         return $this;

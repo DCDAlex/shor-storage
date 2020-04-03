@@ -42,7 +42,9 @@ class Image extends File
 
         if ($this->file != null) {
             $path = parent::directoryChecking($this->directory) . parent::hashing($this->file) . '.' . $this->fileType;
-            $this->uploadPath = Storage::disk($this->storageDisc)->put($path, $this->file);
+            if (Storage::disk($this->storageDisc)->put($path, $this->file)) {
+                $this->uploadPath = $this->directory . $this->name . "." . $this->fileType;
+            }
         }
 
         return $this;
@@ -78,7 +80,7 @@ class Image extends File
     }
 
     /**
-     * Объявление файла 
+     * Объявление файла
      *
      * @param [type] $file
      * @return object
