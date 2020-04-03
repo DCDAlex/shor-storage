@@ -2,6 +2,7 @@
 
 namespace Setrest\Storage;
 
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image as InterventionImage;
 
 /**
@@ -38,7 +39,11 @@ class Image extends File
         }
 
         $this->file->encode($this->fileType);
-        $this->upload();
+
+        if ($this->file != null) {
+            $path = parent::directoryChecking($this->directory) . parent::hashing($this->file) . '.' . $this->fileType;
+            $this->uploadPath = Storage::disk($this->storageDisc)->put($path, $this->file);
+        }
 
         return $this;
     }

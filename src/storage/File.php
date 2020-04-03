@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
  */
 class File
 {
-    public $isUploaded;
+    public $uploadPath;
 
     /**
      * Директория для загрузки файлов
@@ -40,7 +40,7 @@ class File
 
     public function __construct($file = null)
     {
-        $this->isUploaded = false;
+        $this->uploadPath = null;
         $this->storageDisc = 'customPublic';
 
         $this->setInformation($file);
@@ -59,8 +59,7 @@ class File
         }
 
         if ($this->file != null) {
-            $path = $this->directoryChecking($this->directory) . $this->hashing($this->file) . '.' . $this->fileType;
-            $this->isUploaded = Storage::disk($this->storageDisc)->put($path, $this->file);
+            $this->uploadPath = Storage::disk($this->storageDisc)->put($this->directoryChecking($this->directory), $this->file);
         }
 
         return $this;
@@ -102,8 +101,8 @@ class File
      */
     public function path(): ?string
     {
-        if ($this->isUploaded) {
-            return $this->directory . $this->name . "." . $this->fileType;
+        if ($this->uploadPath) {
+            return $this->uploadPath;
         }
 
         return null;
