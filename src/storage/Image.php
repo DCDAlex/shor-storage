@@ -38,12 +38,12 @@ class Image extends File
             $this->__construct($image);
         }
 
-        $this->file->encode($this->fileType);
+        $this->file->encode($this->fileExtension);
 
         if ($this->file != null) {
-            $path = parent::directoryChecking($this->directory) . parent::hashing($this->file) . '.' . $this->fileType;
+            $path = parent::directoryChecking($this->directory) . parent::hashing($this->file) . '.' . $this->fileExtension;
             if (Storage::disk($this->storageDisc)->put($path, $this->file)) {
-                $this->uploadPath = $this->directory . $this->name . "." . $this->fileType;
+                $this->uploadPath = $this->directory . $this->name . "." . $this->fileExtension;
             }
         }
 
@@ -89,5 +89,15 @@ class Image extends File
     {
         $this->__construct($image);
         return $this;
+    }
+
+    protected function setInformation($file): void
+    {
+        $this->file = $file;
+
+        if ($this->file) {
+            $this->fileExtension = substr($file->mime, strpos($file->mime, "/") + 1);
+        }
+
     }
 }

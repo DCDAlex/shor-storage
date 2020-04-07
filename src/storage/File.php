@@ -3,11 +3,10 @@
 namespace Setrest\Storage;
 
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * 🔧 Абстрактный класс, реализует основную логику работы с файлами
+ * 🔧 Реализует основную логику работы с файлами
  */
 class File
 {
@@ -24,9 +23,14 @@ class File
     public $name;
 
     /**
+     * Оригинальное название файла
+     */
+    public $originalName;
+
+    /**
      * Расширение загружаемого файла
      */
-    public $fileType;
+    public $fileExtension;
 
     /**
      * Название laravel диска для загрузки
@@ -77,7 +81,7 @@ class File
         if (substr($postfix, 0) != '/') {
             $postfix = '/' . $postfix;
         }
-        
+
         $this->directory .= $postfix;
         return $this;
     }
@@ -133,11 +137,8 @@ class File
         $this->file = $file;
 
         if ($this->file) {
-            try {
-                $this->fileType = substr($file->mime, strpos($file->mime, "/") + 1);
-            } catch (Exception $e) {
-                $this->fileType = substr($file->getClientOriginalName(), strpos($file->getClientOriginalName(), '.') + 1);
-            }
+            $this->fileExtension = $file->getClientOriginalExtension();
+            $this->originalName = explode('.',$file->getClientOriginalName())[0];
         }
     }
 
