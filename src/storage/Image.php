@@ -20,10 +20,13 @@ class Image extends File
 
     public function __construct($file = null)
     {
+        $this->driver = 'customPublic';
+
         if ($file) {
             $file = InterventionImage::make($file);
+            parent::__construct($file ?? null);
         }
-        parent::__construct($file ?? null);
+        
     }
 
     /**
