@@ -22,8 +22,8 @@ class Image extends File
     {
         if ($file) {
             $file = InterventionImage::make($file);
-            parent::__construct($file);
         }
+        parent::__construct($file ?? null);
     }
 
     /**
@@ -33,7 +33,6 @@ class Image extends File
      */
     public function uploadImage($image = null): object
     {
-
         if ($image) {
             $this->__construct($image);
         }
@@ -42,7 +41,7 @@ class Image extends File
 
         if ($this->file != null) {
             $path = parent::directoryChecking($this->directory) . parent::hashing($this->file) . '.' . $this->fileExtension;
-            if (Storage::disk($this->storageDisc)->put($path, $this->file)) {
+            if (Storage::disk($this->driver)->put($path, $this->file)) {
                 $this->uploadPath = $this->directory . $this->name . "." . $this->fileExtension;
             }
         }
@@ -98,6 +97,5 @@ class Image extends File
         if ($this->file) {
             $this->fileExtension = substr($file->mime, strpos($file->mime, "/") + 1);
         }
-
     }
 }

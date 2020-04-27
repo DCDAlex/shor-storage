@@ -35,7 +35,7 @@ class File
     /**
      * Название laravel диска для загрузки
      */
-    public $storageDisc;
+    public $driver;
 
     /**
      * Исходный файл
@@ -45,9 +45,11 @@ class File
     public function __construct($file = null)
     {
         $this->uploadPath = null;
-        $this->storageDisc = 'customPublic';
+        $this->driver = $this->driver ?? 'customPublic';
 
-        $this->setInformation($file);
+        if ($file) {
+            $this->setInformation($file);
+        }
     }
 
     /**
@@ -63,7 +65,7 @@ class File
         }
 
         if ($this->file != null) {
-            $uploadPath = Storage::disk($this->storageDisc)->put($this->directoryChecking($this->directory), $this->file);
+            $uploadPath = Storage::disk($this->driver)->put($this->directoryChecking($this->directory), $this->file);
             $this->uploadPath = preg_replace('/(\/){2,}/', '$1', $uploadPath);
         }
 
@@ -95,7 +97,7 @@ class File
      */
     public function delete(string $path = null): bool
     {
-        return Storage::disk($this->storageDisc)->delete($path);
+        return Storage::disk($this->driver)->delete($path);
     }
 
     /**
@@ -138,7 +140,7 @@ class File
 
         if ($this->file) {
             $this->fileExtension = $file->getClientOriginalExtension();
-            $this->originalName = explode('.',$file->getClientOriginalName())[0];
+            $this->originalName = explode('.', $file->getClientOriginalName())[0];
         }
     }
 
@@ -150,5 +152,10 @@ class File
         }
 
         return $this->directory = $directory;
+    }
+
+    public function getDriver(): string
+    {
+        return $this->driver;
     }
 }
