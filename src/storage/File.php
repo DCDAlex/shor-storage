@@ -45,7 +45,7 @@ class File
     public function __construct($file = null)
     {
         $this->uploadPath = null;
-        $this->driver = $this->driver ?? 'customPublic';
+        $this->driver = $this->driver ?? config('filesystems.default');
 
         if ($file) {
             $this->setInformation($file);
@@ -115,6 +115,17 @@ class File
         return null;
     }
 
+    public function getDriver(): string
+    {
+        return $this->driver;
+    }
+
+    public function setDriver(string $driver): object
+    {
+        $this->driver = $driver;
+        return $this;
+    }
+
     /**
      * Генерирует хэш для названия файла
      *
@@ -152,10 +163,5 @@ class File
         }
 
         return $this->directory = $directory;
-    }
-
-    public function getDriver(): string
-    {
-        return $this->driver;
     }
 }
