@@ -34,7 +34,7 @@ class Image extends File
      *
      * @return string|null
      */
-    public function uploadImage($image = null): object
+    public function upload($image = null): object
     {
         if ($image) {
             $this->__construct($image);
@@ -61,7 +61,7 @@ class Image extends File
     public function updateImage(string $path, $image = null): object
     {
         $this->delete($path);
-        return $this->uploadImage($image);
+        return $this->upload($image);
     }
 
     /**

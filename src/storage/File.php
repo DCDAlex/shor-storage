@@ -126,6 +126,17 @@ class File
         return $this;
     }
 
+    public function getDirecory(): string
+    {
+        return $this->directory;
+    }
+
+    public function setDirecory(string $directory): object
+    {
+        $this->directory = $directory;
+        return $this;
+    }
+
     /**
      * Генерирует хэш для названия файла
      *
