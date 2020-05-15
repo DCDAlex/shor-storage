@@ -126,12 +126,12 @@ class File
         return $this;
     }
 
-    public function getDirecory(): string
+    public function getDirectory(): string
     {
         return $this->directory;
     }
 
-    public function setDirecory(string $directory): object
+    public function setDirectory(string $directory): object
     {
         $this->directory = $directory;
         return $this;
