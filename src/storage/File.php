@@ -42,6 +42,11 @@ class File
      */
     public $file;
 
+    /**
+     * Размер входного файла
+     */
+    public $size;
+
     public function __construct($file = null)
     {
         $this->uploadPath = null;
@@ -163,6 +168,7 @@ class File
         if ($this->file) {
             $this->fileExtension = $file->getClientOriginalExtension();
             $this->originalName = explode('.', $file->getClientOriginalName())[0];
+            $this->size = $file->getSize();
         }
     }
 
