@@ -3,6 +3,7 @@
 namespace Setrest\Storage;
 
 use Carbon\Carbon;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
  */
 class File
 {
-    public $uploadPath;
+    public $uploadPath = null;
 
     /**
      * Директория для загрузки файлов
@@ -47,14 +48,63 @@ class File
      */
     public $size;
 
+    public function __call($name, $arguments)
+    {
+        if ($name === "directoryPostfix") {
+            return call_user_func_array([self::class, 'dirpostfix'], $arguments);
+        }
+    }
+
     public function __construct($file = null)
     {
-        $this->uploadPath = null;
-        $this->driver = $this->driver ?? config('filesystems.default');
+        $this->driver = $this->driver();
+        $this->directory = $this->directory();
 
         if ($file) {
-            $this->setInformation($file);
+            $this->setup($file);
         }
+    }
+
+    protected function setup(UploadedFile $file)
+    {
+        if ($file) {
+            $this->file = $file;
+            $this->preSetupHook($file);
+            $this->setInformation();
+        }
+
+    }
+
+    protected function driver(): string
+    {
+        return config('filesystems.default');
+    }
+
+    public function getDriver(): string
+    {
+        return $this->driver;
+    }
+
+    public function setDriver(string $driver): self
+    {
+        $this->driver = $driver;
+        return $this;
+    }
+
+    protected function directory(): string
+    {
+        return '/';
+    }
+
+    public function getDirectory(): string
+    {
+        return $this->directory;
+    }
+
+    public function setDirectory(string $directory): self
+    {
+        $this->directory = $directory;
+        return $this;
     }
 
     /**
@@ -63,10 +113,10 @@ class File
      * @param [type] $file
      * @return object
      */
-    public function upload($file = null): object
+    public function upload(UploadedFile $file = null): object
     {
         if ($file) {
-            $this->setInformation($file);
+            $this->setup($file);
         }
 
         if ($this->file != null) {
@@ -83,7 +133,7 @@ class File
      * @param string $postfix
      * @return object
      */
-    public function directoryPostfix(string $postfix): object
+    public function dirpostfix(string $postfix): self
     {
         if (substr($postfix, 0) != '/') {
             $postfix = '/' . $postfix;
@@ -120,28 +170,6 @@ class File
         return null;
     }
 
-    public function getDriver(): string
-    {
-        return $this->driver;
-    }
-
-    public function setDriver(string $driver): object
-    {
-        $this->driver = $driver;
-        return $this;
-    }
-
-    public function getDirectory(): string
-    {
-        return $this->directory;
-    }
-
-    public function setDirectory(string $directory): object
-    {
-        $this->directory = $directory;
-        return $this;
-    }
-
     /**
      * Генерирует хэш для названия файла
      *
@@ -161,15 +189,25 @@ class File
      * @param [type] $file
      * @return void
      */
-    protected function setInformation($file): void
+    protected function setInformation(): void
     {
-        $this->file = $file;
-
         if ($this->file) {
-            $this->fileExtension = $file->getClientOriginalExtension();
-            $this->originalName = explode('.', $file->getClientOriginalName())[0];
-            $this->size = $file->getSize();
+            $this->fileExtension = $this->file->getClientOriginalExtension();
+            $this->originalName = explode('.', $this->file->getClientOriginalName())[0];
+            $this->size = $this->file->getSize();
         }
+    }
+
+    /**
+     * Объявление файла
+     *
+     * @param use Illuminate\Http\UploadedFile $file
+     * @return object
+     */
+    public function init(UploadedFile $file): self
+    {
+        $this->setup($file);
+        return $this;
     }
 
     protected function directoryChecking(string $directory): string
