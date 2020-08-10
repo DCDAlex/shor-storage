@@ -3,14 +3,15 @@
 namespace Setrest\Storage;
 
 use Carbon\Carbon;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * 🔧 Абстрактный класс, реализует основную логику работы с файлами
+ * 🔧 Реализует основную логику работы с файлами
  */
 class File
 {
-    public $isUploaded;
+    public $uploadPath = null;
 
     /**
      * Директория для загрузки файлов
@@ -23,27 +24,87 @@ class File
     public $name;
 
     /**
+     * Оригинальное название файла
+     */
+    public $originalName;
+
+    /**
      * Расширение загружаемого файла
      */
-    public $fileType;
+    public $fileExtension;
 
     /**
      * Название laravel диска для загрузки
      */
-    public $storageDisc;
+    public $driver;
 
     /**
      * Исходный файл
      */
     public $file;
 
+    /**
+     * Размер входного файла
+     */
+    public $size;
+
+    public function __call($name, $arguments)
+    {
+        if ($name === "directoryPostfix") {
+            return call_user_func_array([self::class, 'dirpostfix'], $arguments);
+        }
+    }
+
     public function __construct($file = null)
     {
-        $this->isUploaded = false;
-        $this->storageDisc = 'customPublic';
-        $this->directory = $this->directory . '/';
+        $this->driver = $this->driver();
+        $this->directory = $this->directory();
 
-        $this->setInformation($file);
+        if ($file) {
+            $this->setup($file);
+        }
+    }
+
+    protected function setup(UploadedFile $file)
+    {
+        if ($file) {
+            $this->file = $file;
+            $this->preSetupHook($file);
+            $this->setInformation();
+        }
+
+    }
+
+    protected function driver(): string
+    {
+        return config('filesystems.default');
+    }
+
+    public function getDriver(): string
+    {
+        return $this->driver;
+    }
+
+    public function setDriver(string $driver): self
+    {
+        $this->driver = $driver;
+        return $this;
+    }
+
+    protected function directory(): string
+    {
+        return '/';
+    }
+
+    public function getDirectory(): string
+    {
+        return $this->directory;
+    }
+
+    public function setDirectory(string $directory): self
+    {
+        $this->directory = $directory;
+        return $this;
     }
 
     /**
@@ -52,18 +113,61 @@ class File
      * @param [type] $file
      * @return object
      */
-    public function upload($file = null): object
+    public function upload(UploadedFile $file = null): object
     {
         if ($file) {
-            $this->setInformation($file);
+            $this->setup($file);
         }
 
         if ($this->file != null) {
-            $path = $this->directory . $this->hashing($this->file) . '.' . $this->fileType;
-            $this->isUploaded = Storage::disk($this->storageDisc)->put($path, $this->file);
+            $uploadPath = Storage::disk($this->driver)->put($this->directoryChecking($this->directory), $this->file);
+            $this->uploadPath = preg_replace('/(\/){2,}/', '$1', $uploadPath);
         }
 
         return $this;
+    }
+
+    /**
+     * Метод дял добавления вложенных директорий
+     *
+     * @param string $postfix
+     * @return object
+     */
+    public function dirpostfix(string $postfix): self
+    {
+        if (substr($postfix, 0) != '/') {
+            $postfix = '/' . $postfix;
+        }
+
+        $this->directory .= $postfix;
+        return $this;
+    }
+
+    /**
+     * Удаляет файл с сервера
+     *
+     * @param string $path относительный путь до файла
+     *
+     * @return boolean
+     */
+    public function delete(string $path = null): bool
+    {
+        return Storage::disk($this->driver)->delete($path);
+    }
+
+    /**
+     * Получение пути только что созданного иозображения
+     * относительно директории указанной в конфиге файловой системы
+     *
+     * @return string
+     */
+    public function path(): ?string
+    {
+        if ($this->uploadPath) {
+            return $this->uploadPath;
+        }
+
+        return null;
     }
 
     /**
@@ -80,56 +184,39 @@ class File
     }
 
     /**
-     * Метод дял добавления вложенных директорий
-     *
-     * @param string $postfix
-     * @return object
-     */
-    public function directoryPostfix(string $postfix): object
-    {
-        $this->directory .= $postfix;
-        return $this;
-    }
-
-    /**
-     * Удаляет файл с сервера
-     *
-     * @param string $path относительный путь до файла
-     *
-     * @return boolean
-     */
-    public function delete(string $path = null): bool
-    {
-        return Storage::disk($this->storageDisc)->delete($path);
-    }
-
-    /**
      * Сбор информации о файле
      *
      * @param [type] $file
      * @return void
      */
-    private function setInformation($file): void
+    protected function setInformation(): void
     {
-        $this->file = $file;
-
         if ($this->file) {
-            $this->fileType = substr($file->mime, strpos($file->mime, "/") + 1);
+            $this->fileExtension = $this->file->getClientOriginalExtension();
+            $this->originalName = explode('.', $this->file->getClientOriginalName())[0];
+            $this->size = $this->file->getSize();
         }
     }
 
     /**
-     * Получение пути только что созданного иозображения
-     * относительно директории указанной в конфиге файловой системы
+     * Объявление файла
      *
-     * @return string
+     * @param use Illuminate\Http\UploadedFile $file
+     * @return object
      */
-    public function path(): ?string
+    public function init(UploadedFile $file): self
     {
-        if ($this->isUploaded) {
-            return $this->directory . $this->name . "." . $this->fileType;
+        $this->setup($file);
+        return $this;
+    }
+
+    protected function directoryChecking(string $directory): string
+    {
+        $directory = preg_replace('/(\/){2,}/', '$1', $directory);
+        if (substr($directory, -1) != '/') {
+            $directory .= '/';
         }
 
-        return null;
+        return $this->directory = $directory;
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Setrest\Storage;
 
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image as InterventionImage;
 
 /**
@@ -15,14 +17,12 @@ class Image extends File
     /**
      * Устанваливает директорию загрузки файлов
      */
-    public $directory = /** upload/ **/"images"/** / */;
 
-    public function __construct($file = null)
+    protected $isGif = false;
+
+    protected function directory(): string
     {
-        if ($file) {
-            $file = InterventionImage::make($file);
-            parent::__construct($file);
-        }
+        return 'images';
     }
 
     /**
@@ -30,15 +30,25 @@ class Image extends File
      *
      * @return string|null
      */
-    public function uploadImage($image = null): object
+    public function upload(UploadedFile $image = null): object
     {
-
         if ($image) {
-            $this->__construct($image);
+            $this->setup($image);
         }
 
-        $this->file->encode($this->fileType);
-        $this->upload();
+        if ($this->isGif) {
+            parent::upload($image);
+            return $this;
+        }
+
+        $this->file->encode($this->fileExtension);
+
+        if ($this->file != null) {
+            $path = parent::directoryChecking($this->directory) . parent::hashing($this->file) . '.' . $this->fileExtension;
+            if (Storage::disk($this->driver)->put($path, $this->file)) {
+                $this->uploadPath = $this->directory . $this->name . "." . $this->fileExtension;
+            }
+        }
 
         return $this;
     }
@@ -52,7 +62,7 @@ class Image extends File
     public function updateImage(string $path, $image = null): object
     {
         $this->delete($path);
-        return $this->uploadImage($image);
+        return $this->upload($image);
     }
 
     /**
@@ -62,9 +72,13 @@ class Image extends File
      * @param integer $height Изменение по ширине
      * @return self
      */
-    public function resize(int $weight, int $height): object
+    public function resize(int $width, int $height): self
     {
-        $this->file->resize($weight, $height, function ($constraint) {
+        if ($this->isGif) {
+            return $this;
+        }
+
+        $this->file->resize($width, $height, function ($constraint) {
             $constraint->aspectRatio();
             $constraint->upsize();
         });
@@ -72,15 +86,23 @@ class Image extends File
         return $this;
     }
 
-    /**
-     * Объявление файла 
-     *
-     * @param [type] $file
-     * @return object
-     */
-    public function init($image): object
+    protected function preSetupHook($image)
     {
-        $this->__construct($image);
-        return $this;
+        if ($image->getClientOriginalExtension() == 'gif') {
+            $this->isGif = true;
+        } else {
+            $this->file = InterventionImage::make($image);
+        }
+
+    }
+
+    protected function setInformation(): void
+    {
+        if ($this->isGif) {
+            parent::setInformation();
+        }
+        if ($this->file && !$this->isGif) {
+            $this->fileExtension = substr($this->file->mime, strpos($this->file->mime, "/") + 1);
+        }
     }
 }
